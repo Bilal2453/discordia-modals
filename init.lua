@@ -7,7 +7,6 @@ require('discordia-components')
 -- Patch client
 require('client/Client')
 
--- TODO: doc comments
 local enums = discordia.enums
 local new_enums = require('enums')
 local interactionType = enums.interactionType

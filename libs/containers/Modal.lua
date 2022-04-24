@@ -13,8 +13,20 @@ local MAX_ROWS = 5
 local MAX_ROW_CELLS = 1
 local COMPONENTS = {TextInput}
 
+---@alias Modal-Resolvable string|{id: string, title: string, [number]: TextInput-Resolvable}
+
+---Represents a Discord modal used to display a GUI prompt for end-users.
+---This is main builder for modals, the entry point of this library and where to create modals.
+---@class Modal
+---@field textInputs ArrayIterable A cache of all constructed [[TextInput]] classes in this instance.
+---@overload fun(data?: string|Modal-Resolvable): Modal
+---<!tag:interface> <!method-tags:mem>
 local Modal = class('Modal', ComponentsContainer)
 
+---<!ignore>
+---Creates a new [[Modal]] instance.
+---@param data string|table
+---@return Modal
 function Modal:__init(data)
   -- validate and resolve argument
   data = self:_validate(data)
@@ -33,7 +45,7 @@ function Modal:__init(data)
 end
 
 ---<!ignore>
---- A simple helper function to get the names of support components in a modal for error messages.
+--- A simple helper function to get the names of supported components in a modal for error messages.
 ---@return string # a string of components names separated by , (comma)
 local function getSupportedComponents()
   local supported_components = {}
@@ -43,6 +55,10 @@ local function getSupportedComponents()
   return table.concat(supported_components, ', ')
 end
 
+---<!ignore>
+---Resolves the data parameter for a Modal instance.
+---@param data Modal-Resolvable
+---@return Modal-Resolvable
 function Modal:_validate(data)
   local data_type = type(data)
   if data_type ~= 'table' then
@@ -51,6 +67,9 @@ function Modal:_validate(data)
   return data
 end
 
+---<!ignore>
+---Loads the provided data into the Modal instance.
+---@param data Modal-Resolvable
 function Modal:_load(data)
   -- make sure we got a table
   local data_type = type(data)
@@ -95,22 +114,35 @@ function Modal:_load(data)
   end
 end
 
+---Sets the title of the modal. A modal title is displayed as a big text in the top-center of a modal.
+---@param title string
+---@return Modal
 function Modal:title(title)
   title = tostring(title)
   self._title = assert(title, 'title must be in the range 1-45 inclusive')
   return self
 end
 
-function Modal:textInput(...)
-  self:_buildComponent(TextInput, ...)
+---Creates and assign a new [[TextInput]] component.
+---@param data TextInput-Resolvable
+---@param label string
+---@param style Style-Resolvable
+---@return Modal
+function Modal:textInput(data, label, style)
+  self:_buildComponent(TextInput, data, label, style)
   return self
 end
 
+---Removes a previously assigned [[TextInput]] component from the current instance.
+---@param id string
+---@return Modal
 function Modal:removeTextInput(id)
   return self:_remove(TextInput, id)
 end
 
 local component_raw = Modal.raw
+---Returns the raw table structure of this modal that is accepted by Discord.
+---@return table
 function Modal:raw()
   -- get raw representation of the components
   local components = component_raw(self)
