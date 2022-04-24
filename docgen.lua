@@ -168,6 +168,9 @@ local function matchParameters(c)
 
 	for _, s in ipairs(c) do
 		local params = s:match('@type%s*fun%s*%((.-)%)')
+		if not params then
+			params = s:match('@overload%s*fun%s*%((.-)%)')
+		end
 		if not params then goto continue end
 		for pp in params:gmatch('[^,]+') do
 			local param_name, optional = pp:match('([%w_%-]+)%s*(%??)')
